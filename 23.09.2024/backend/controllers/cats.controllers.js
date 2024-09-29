@@ -1,46 +1,55 @@
-const cats = [
-    {
-      id: "7d613b93-fa3e-4ef3-a9d2-e09e5ca6e4e6",
-      name: "Meow",
-      createdAt: 1727098800585,
-      updatedAt: null,
-      deleted: false,
-    },
-    {
-      id: "2dc9ce08-d345-4fed-8560-4c6b66fb0836",
-      name: "Kitty",
-      createdAt: 1727098952739,
-      updatedAt: null,
-      deleted: false,
-    },
-  ];
-  
-  exports.create = (req, res) => {
-    const { name } = req.body;
-  
-    if (!name || name === "") {
-      return res
-        .status(418)
-        .send({ type: "Error", message: "Must include a name" });
+import Cat from '../models/Cat';
+
+class CatController {
+  async getAll(req, res) {
+    try {
+      const cats = await Cat.findAll({
+        where: {
+          deleted: false,
+        },
+      });
+      res.json(cats);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching cats' });
     }
-  
-    const newCat = {
-      id: crypto.randomUUID(),
-      name: name,
-      createdAt: Date.now(),
-      updatedAt: null,
-      deleted: false,
-    };
-  
-    cats.push(newCat);
-  
-    res.send(newCat);
-  };
-  
-  exports.read = (req, res) => {
-    res.send(cats);
-  };
-  
-  exports.update = (req, res) => {};
-  
-  exports.delete = (req, res) => {};
+  }
+
+  async create(req, res) {
+    try {
+      const cat = await Cat.create(req.body);
+      res.json(cat);
+    } catch (error) {
+      res.status(500).json({ message: 'Error creating cat' });
+    }
+  }
+
+  async update(req, res) {
+    try {
+      const cat = await Cat.findByPk(req.params.id);
+      if (!cat) {
+        res.status(404).json({ message: 'Cat not found' });
+      } else {
+        await cat.update(req.body);
+        res.json(cat);
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating cat' });
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const cat = await Cat.findByPk(req.params.id);
+      if (!cat) {
+        res.status(404).json({ message: 'Cat not found' });
+      } else {
+        await cat.update({ deleted: true });
+        res.json({ message: 'Cat deleted' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Error deleting cat' });
+    }
+  }
+}
+
+export default CatController;
