@@ -1,20 +1,20 @@
 import React from 'react';
 import { Card, CardContent, Typography, Button } from '@material-ui/core';
 
-const Cat = ({ cat, handleUpdate, handleDelete }) => {
+const Todo = ({ todo, handleUpdate, handleDelete }) => {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2">
-          {cat.name}
+          {todo.title}
         </Typography>
         <Typography variant="body1" component="p">
-          Age: {cat.age}
+          Priority: {todo.priority}
         </Typography>
-        <Button variant="contained" color="primary" onClick={() => handleUpdate(cat.id)}>
+        <Button variant="contained" color="primary" onClick={() => handleUpdate(todo.id)}>
           Update
         </Button>
-        <Button variant="contained" color="secondary" onClick={() => handleDelete(cat.id)}>
+        <Button variant="contained" color="secondary" onClick={() => handleDelete(todo.id)}>
           Delete
         </Button>
       </CardContent>
@@ -22,4 +22,4 @@ const Cat = ({ cat, handleUpdate, handleDelete }) => {
   );
 };
 
-export default Cat;
+export default Todo;

@@ -1,55 +1,63 @@
-import Cat from '../models/Cat';
+const Cat = require('../models/cat');
 
-class CatController {
-  async getAll(req, res) {
-    try {
-      const cats = await Cat.findAll({
-        where: {
-          deleted: false,
-        },
-      });
-      res.json(cats);
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching cats' });
-    }
+exports.getCats = async (req, res) => {
+  try {
+    const cats = await Cat.findAll({ where: { deleted: false } });
+    res.json(cats);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching cats' });
   }
+};
 
-  async create(req, res) {
-    try {
-      const cat = await Cat.create(req.body);
+exports.getCat = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const cat = await Cat.findOne({ where: { id, deleted: false } });
+    if (!cat) {
+      res.status(404).json({ message: 'Cat not found' });
+    } else {
       res.json(cat);
-    } catch (error) {
-      res.status(500).json({ message: 'Error creating cat' });
     }
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching cat' });
   }
+};
 
-  async update(req, res) {
-    try {
-      const cat = await Cat.findByPk(req.params.id);
-      if (!cat) {
-        res.status(404).json({ message: 'Cat not found' });
-      } else {
-        await cat.update(req.body);
-        res.json(cat);
-      }
-    } catch (error) {
-      res.status(500).json({ message: 'Error updating cat' });
+exports.createCat = async (req, res) => {
+  try {
+    const cat = await Cat.create(req.body);
+    res.json(cat);
+  } catch (err) {
+    res.status(500).json({ message: 'Error creating cat' });
+  }
+};
+
+exports.updateCat = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const cat = await Cat.findOne({ where: { id, deleted: false } });
+    if (!cat) {
+      res.status(404).json({ message: 'Cat not found' });
+    } else {
+      cat.update(req.body);
+      res.json(cat);
     }
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating cat' });
   }
+};
 
-  async delete(req, res) {
-    try {
-      const cat = await Cat.findByPk(req.params.id);
-      if (!cat) {
-        res.status(404).json({ message: 'Cat not found' });
-      } else {
-        await cat.update({ deleted: true });
-        res.json({ message: 'Cat deleted' });
-      }
-    } catch (error) {
-      res.status(500).json({ message: 'Error deleting cat' });
+exports.deleteCat = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const cat = await Cat.findOne({ where: { id, deleted: false } });
+    if (!cat) {
+      res.status(404).json({ message: 'Cat not found' });
+    } else {
+      cat.update({ deleted: true });
+      res.json({ message: 'Cat deleted' });
     }
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting cat' });
   }
-}
-
-export default CatController;
+};
