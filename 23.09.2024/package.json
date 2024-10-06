@@ -15,6 +15,7 @@
     "@types/react": "^18.3.6",
     "@types/react-dom": "^18.3.0",
     "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
