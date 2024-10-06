@@ -53,6 +53,8 @@ exports.deleteCat = async (req, res) => {
     const cat = await Cat.findOne({ where: { id, deleted: false } });
     if (!cat) {
       res.status(404).json({ message: 'Cat not found' });
+    } else if (cat.deleted) {
+      res.status(400).json({ message: 'Cat is already deleted' });
     } else {
       cat.update({ deleted: true });
       res.json({ message: 'Cat deleted' });

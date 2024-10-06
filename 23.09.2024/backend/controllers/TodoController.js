@@ -53,6 +53,8 @@ exports.deleteTodo = async (req, res) => {
     const todo = await Todo.findOne({ where: { id, deleted: false } });
     if (!todo) {
       res.status(404).json({ message: 'Todo not found' });
+    } else if (todo.deleted) {
+      res.status(400).json({ message: 'Todo is already deleted' });
     } else {
       todo.update({ deleted: true });
       res.json({ message: 'Todo deleted' });
