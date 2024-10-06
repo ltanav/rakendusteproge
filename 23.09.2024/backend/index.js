@@ -9,15 +9,13 @@ app.use(morgan("dev"));
 
 const catsRoutes = require("./routes/cats.routes");
 const exampleRoutes = require("./routes/example.routes");
+const authRoutes = require("./routes/auth.routes");
 
 app.use(express.json());
 
 app.use("/cats", catsRoutes);
 app.use("/examples", exampleRoutes);
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+app.use("/auth", authRoutes);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
