@@ -1,8 +1,26 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container } from '@material-ui/core';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import Cat from './Cat';
 import Todo from './Todo';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#333',
+    },
+    secondary: {
+      main: '#666',
+    },
+    error: {
+      main: '#f44336',
+    },
+    background: {
+      default: '#f0f0f0',
+    },
+  },
+});
 
 const App = () => {
   const [cats, setCats] = useState([]);
