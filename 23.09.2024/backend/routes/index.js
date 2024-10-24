@@ -1,17 +1,25 @@
-import express from 'express';
-import CatController from '../controllers/CatController';
-import TodoController from '../controllers/TodoController';
+const express = require("express");
+const cors = require("cors");
+const app = express();
+const morgan = require("morgan");
+const port = 8080;
 
-const router = express.Router();
+app.use(cors());
+app.use(morgan("dev"));
 
-router.get('/cats', CatController.getAll);
-router.post('/cats', CatController.create);
-router.put('/cats/:id', CatController.update);
-router.delete('/cats/:id', CatController.delete);
+const catsRoutes = require("./routes/cats.routes");
+const exampleRoutes = require("./routes/example.routes");
+const authRoutes = require("./routes/auth.routes");
+const jwtRoutes = require("./routes/jwt.routes"); 
 
-router.get('/todos', TodoController.getAll);
-router.post('/todos', TodoController.create);
-router.put('/todos/:id', TodoController.update);
-router.delete('/todos/:id', TodoController.delete);
+app.use(express.json());
 
-export default router;
+app.use("/cats", catsRoutes);
+app.use("/examples", exampleRoutes);
+app.use("/auth", authRoutes);
+app.use("/jwt", jwtRoutes); 
+app.use('/todos', todoRouter);
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
