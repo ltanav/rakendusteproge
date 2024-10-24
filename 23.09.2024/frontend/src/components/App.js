@@ -1,9 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
-import { Container } from '@material-ui/core';
+import { Container, CircularProgress, Snackbar, Typography } from '@material-ui/core';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import Cat from './Cat';
 import Todo from './Todo';
+import Alert from '@material-ui/lab/Alert';
+import { makeStyles } from '@material-ui/core/styles';
 
 const theme = createTheme({
   palette: {
@@ -22,76 +23,118 @@ const theme = createTheme({
   },
 });
 
+// Custom styles
+const useStyles = makeStyles((theme) => ({
+  container: {
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(2),
+  },
+}));
+
 const App = () => {
+  const classes = useStyles();
   const [cats, setCats] = useState([]);
   const [todos, setTodos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/cats')
-      .then(response => response.json())
-      .then(data => setCats(data));
+    const fetchData = async () => {
+      try {
+        const catResponse = await fetch('http://localhost:3000/api/cats');
+        const catData = await catResponse.json();
+        setCats(catData);
 
-    fetch('http://localhost:3000/api/todos')
-      .then(response => response.json())
-      .then(data => setTodos(data));
+        const todoResponse = await fetch('http://localhost:3000/api/todos');
+        const todoData = await todoResponse.json();
+        setTodos(todoData);
+      } catch (err) {
+        setError('Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const handleUpdateCat = (id, data) => {
-    fetch(`http://localhost:3000/api/cats/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error(error));
+  const handleUpdateCat = async (id, data) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/cats/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const updatedCat = await response.json();
+      setCats(cats.map(cat => (cat.id === id ? updatedCat : cat)));
+    } catch (error) {
+      setError('Failed to update cat');
+    }
   };
 
-  const handleDeleteCat = (id) => {
-    fetch(`http://localhost:3000/api/cats/${id}`, {
-      method: 'DELETE'
-    })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error(error));
+  const handleDeleteCat = async (id) => {
+    try {
+      await fetch(`http://localhost:3000/api/cats/${id}`, {
+        method: 'DELETE',
+      });
+      setCats(cats.filter(cat => cat.id !== id));
+    } catch (error) {
+      setError('Failed to delete cat');
+    }
   };
 
-  const handleUpdateTodo = (id, data) => {
-    fetch(`http://localhost:3000/api/todos/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error(error));
+  const handleUpdateTodo = async (id, data) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const updatedTodo = await response.json();
+      setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)));
+    } catch (error) {
+      setError('Failed to update todo');
+    }
   };
 
-  const handleDeleteTodo = (id) => {
-    fetch(`http://localhost:3000/api/todos/${id}`, {
-      method: 'DELETE'
-    })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error(error));
+  const handleDeleteTodo = async (id) => {
+    try {
+      await fetch(`http://localhost:3000/api/todos/${id}`, {
+        method: 'DELETE',
+      });
+      setTodos(todos.filter(todo => todo.id !== id));
+    } catch (error) {
+      setError('Failed to delete todo');
+    }
   };
 
   return (
-    <Container>
-      <h1>Cats</h1>
-      {cats.map((cat) => (
-        <Cat key={cat.id} cat={cat} handleUpdate={handleUpdateCat} handleDelete={handleDeleteCat} />
-      ))}
-      <h1>TODOs</h1>
-      {todos.map((todo) => (
-        <Todo key={todo.id} todo={todo} handleUpdate={handleUpdateTodo} handleDelete={handleDeleteTodo} />
-      ))}
-    </Container>
+    <ThemeProvider theme={theme}>
+      <Container className={classes.container}>
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <>
+            <Typography variant="h4" color="primary">Cats</Typography>
+            {cats.map((cat) => (
+              <Cat key={cat.id} cat={cat} handleUpdate={handleUpdateCat} handleDelete={handleDeleteCat} />
+            ))}
+            <Typography variant="h4" color="primary">TODOs</Typography>
+            {todos.map((todo) => (
+              <Todo key={todo.id} todo={todo} handleUpdate={handleUpdateTodo} handleDelete={handleDeleteTodo} />
+            ))}
+          </>
+        )}
+        <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+          <Alert onClose={() => setError(null)} severity="error">
+            {error}
+          </Alert>
+        </Snackbar>
+      </Container>
+    </ThemeProvider>
   );
 };
-
-export default App;
